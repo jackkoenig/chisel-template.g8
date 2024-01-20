@@ -14,7 +14,8 @@ jobs:
     permissions:
       contents: write
     runs-on: ubuntu-latest
-    if: github.event.repository.name != 'chisel-template'
+    #if: github.event.repository.name != 'chisel-template'
+    if: false
     steps:
 
       - name: Checkout
