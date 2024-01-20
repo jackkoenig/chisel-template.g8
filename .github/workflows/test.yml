@@ -13,15 +13,20 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      - name: Cleanup
-        run: sed -i "s/%NAME%/test/g" build.sc
       - name: Cache Scala
         uses: coursier/cache-action@v6
       - name: Setup Scala
-        uses: coursier/setup-action@v1
+        uses: VirtusLab/scala-cli-setup@v1
         with:
-          jvm: adopt:11
-          apps: sbt mill
+          jvm: adoptium:11
+          apps: sbt mill giter8 # Feel free to delete giter8$!
+      # Run g8 and replace all contents here with the output of g8
+      - name: Run g8
+        run: |
+          g8 file://$PWD --name=test --organization=example -o ../test
+          rm -rf *
+          mv ../test/* .
+# !$
       - name: SBT Test
         run: sbt test
       - name: mill Test
