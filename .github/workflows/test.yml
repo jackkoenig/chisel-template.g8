@@ -18,18 +18,17 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      - name: Cleanup
-        run: sed -i "s/%NAME%/test/g" build.mill
       - name: Cache Scala
         uses: coursier/cache-action@v6
       - name: Setup Scala
-        uses: coursier/setup-action@v1
+        uses: VirtusLab/scala-cli-setup@v1
         with:
           jvm: adopt:11
-          apps: sbt
+          apps: sbt giter8 # Feel free to delete giter8
       - name: Setup Mill
         run: |
           curl -L https://github.com/com-lihaoyi/mill/releases/download/0.12.5/0.12.5 > mill && chmod +x mill
+# $! TODO we probably need to still install Verilator but $ are problems for giter8
       - name: Setup Dependencies
         run: |
           sudo apt-get install ccache
@@ -56,6 +55,13 @@ jobs:
           echo "$(pwd)/${{ env.verilator-install-dir }}/bin" >> $GITHUB_PATH
           echo VERILATOR_ROOT="$(pwd)/${{ env.verilator-install-dir }}/share/verilator" >> $GITHUB_ENV
           ln -sf $(pwd)/${{ env.verilator-install-dir }}/bin/verilator_bin $(pwd)/${{ env.verilator-install-dir }}/share/verilator/verilator_bin
+      # Run g8 and replace all contents here with the output of g8
+      - name: Run g8
+        run: |
+          g8 file://$PWD --name=test --organization=example -o ../test
+          rm -rf *
+          mv ../test/* .
+      # Feel free to pick one or the other!$
       - name: SBT Test
         run: sbt test
       - name: mill Test
